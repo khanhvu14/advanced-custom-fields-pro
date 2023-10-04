@@ -2,6 +2,22 @@
 
 global $acf_taxonomy;
 
+$acf_duplicate_taxonomy = acf_get_taxonomy_from_request_args( 'acfduplicate' );
+
+if ( acf_is_taxonomy( $acf_duplicate_taxonomy ) ) {
+	// Reset vars that likely have to be changed.
+	$acf_duplicate_taxonomy['key']             = uniqid( 'taxonomy_' );
+	$acf_duplicate_taxonomy['title']           = '';
+	$acf_duplicate_taxonomy['labels']          = array_map( '__return_empty_string', $acf_duplicate_taxonomy['labels'] );
+	$acf_duplicate_taxonomy['taxonomy']        = '';
+	$acf_duplicate_taxonomy['rewrite']['slug'] = '';
+	$acf_duplicate_taxonomy['query_var_name']  = '';
+	$acf_duplicate_taxonomy['rest_base']       = '';
+
+	// Rest of the vars can be reused.
+	$acf_taxonomy = $acf_duplicate_taxonomy;
+}
+
 acf_render_field_wrap(
 	array(
 		'label'       => __( 'Plural Label', 'acf' ),
@@ -39,13 +55,13 @@ acf_render_field_wrap(
 acf_render_field_wrap(
 	array(
 		'label'        => __( 'Taxonomy Key', 'acf' ),
-		'instructions' => __( 'Lower case letters, underscores and dashes only, Max 20 characters.', 'acf' ),
+		'instructions' => __( 'Lower case letters, underscores and dashes only, Max 32 characters.', 'acf' ),
 		/* translators: example taxonomy */
 		'placeholder'  => __( 'genre', 'acf' ),
 		'type'         => 'text',
 		'key'          => 'taxonomy',
 		'name'         => 'taxonomy',
-		'maxlength'    => 20,
+		'maxlength'    => 32,
 		'class'        => 'acf_slugified_key',
 		'prefix'       => 'acf_taxonomy',
 		'value'        => $acf_taxonomy['taxonomy'],
@@ -56,13 +72,9 @@ acf_render_field_wrap(
 );
 
 // Allow preselecting the linked post types based on previously created post type.
-$acf_use_post_type = acf_request_arg( 'use_post_type', false );
-if ( $acf_use_post_type && wp_verify_nonce( acf_request_arg( '_wpnonce' ), 'create-taxonomy-' . $acf_use_post_type ) ) {
-	$acf_linked_post_type = acf_get_internal_post_type( (int) $acf_use_post_type, 'acf-post-type' );
-
-	if ( $acf_linked_post_type && isset( $acf_linked_post_type['post_type'] ) ) {
-		$acf_taxonomy['object_type'] = array( $acf_linked_post_type['post_type'] );
-	}
+$acf_use_post_type = acf_get_post_type_from_request_args( 'create-taxonomy' );
+if ( $acf_use_post_type && ! empty( $acf_use_post_type['post_type'] ) ) {
+	$acf_taxonomy['object_type'] = array( $acf_use_post_type['post_type'] );
 }
 
 acf_render_field_wrap(

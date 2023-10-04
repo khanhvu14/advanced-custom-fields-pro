@@ -610,10 +610,10 @@ if ( ! class_exists( 'acf_field_checkbox' ) ) :
 		 */
 		public function get_rest_schema( array $field ) {
 			$schema = array(
-				'type'     => array( 'string', 'array', 'null' ),
+				'type'     => array( 'integer', 'string', 'array', 'null' ),
 				'required' => isset( $field['required'] ) && $field['required'],
 				'items'    => array(
-					'type' => 'string',
+					'type' => array( 'string', 'integer' ),
 				),
 			);
 
@@ -626,17 +626,7 @@ if ( ! class_exists( 'acf_field_checkbox' ) ) :
 				return $schema;
 			}
 
-			/**
-			 * If a user has defined keys for the checkboxes,
-			 * we should use the keys for the available options to POST to,
-			 * since they are what is displayed in GET requests.
-			 */
-			$checkbox_keys = array_diff(
-				array_keys( $field['choices'] ),
-				array_values( $field['choices'] )
-			);
-
-			$schema['items']['enum'] = empty( $checkbox_keys ) ? $field['choices'] : $checkbox_keys;
+			$schema['items']['enum'] = acf_get_field_type( 'select' )->format_rest_choices( $field['choices'] );
 
 			return $schema;
 		}

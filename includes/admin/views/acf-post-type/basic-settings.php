@@ -1,6 +1,22 @@
 <?php
 global $acf_post_type;
 
+$acf_duplicate_post_type = acf_get_post_type_from_request_args( 'acfduplicate' );
+
+if ( acf_is_post_type( $acf_duplicate_post_type ) ) {
+	// Reset vars that likely have to be changed.
+	$acf_duplicate_post_type['key']             = uniqid( 'post_type_' );
+	$acf_duplicate_post_type['title']           = '';
+	$acf_duplicate_post_type['labels']          = array_map( '__return_empty_string', $acf_duplicate_post_type['labels'] );
+	$acf_duplicate_post_type['post_type']       = '';
+	$acf_duplicate_post_type['rest_base']       = '';
+	$acf_duplicate_post_type['query_var_name']  = '';
+	$acf_duplicate_post_type['rewrite']['slug'] = '';
+
+	// Rest of the vars can be reused.
+	$acf_post_type = $acf_duplicate_post_type;
+}
+
 acf_render_field_wrap(
 	array(
 		'label'       => __( 'Plural Label', 'acf' ),
@@ -49,6 +65,30 @@ acf_render_field_wrap(
 		'prefix'       => 'acf_post_type',
 		'value'        => $acf_post_type['post_type'],
 		'required'     => true,
+	),
+	'div',
+	'field'
+);
+
+// Allow preselecting the linked taxonomies based on previously created taxonomy.
+$acf_use_taxonomy = acf_get_taxonomy_from_request_args( 'create-post-type' );
+if ( $acf_use_taxonomy && ! empty( $acf_use_taxonomy['taxonomy'] ) ) {
+	$acf_post_type['taxonomies'] = array( $acf_use_taxonomy['taxonomy'] );
+}
+
+acf_render_field_wrap(
+	array(
+		'type'         => 'select',
+		'name'         => 'taxonomies',
+		'key'          => 'taxonomies',
+		'prefix'       => 'acf_post_type',
+		'value'        => $acf_post_type['taxonomies'],
+		'label'        => __( 'Taxonomies', 'acf' ),
+		'instructions' => __( 'Select existing taxonomies to classify items of the post type.', 'acf' ),
+		'choices'      => acf_get_taxonomy_labels(),
+		'ui'           => true,
+		'allow_null'   => true,
+		'multiple'     => true,
 	),
 	'div',
 	'field'
