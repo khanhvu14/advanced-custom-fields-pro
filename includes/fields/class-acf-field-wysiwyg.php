@@ -34,6 +34,9 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 				'default_value' => '',
 				'delay'         => 0,
 			);
+			$this->supports      = array(
+				'escaping_html' => true,
+			);
 
 			// add acf_the_content filters
 			$this->add_filters();
@@ -124,7 +127,6 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 
 			// return
 			return $toolbars;
-
 		}
 
 
@@ -200,32 +202,25 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 
 			// detect mode
 			if ( ! user_can_richedit() ) {
-
 				$show_tabs = false;
-
 			} elseif ( $field['tabs'] == 'visual' ) {
 
 				// case: visual tab only
 				$default_editor = 'tinymce';
 				$show_tabs      = false;
-
 			} elseif ( $field['tabs'] == 'text' ) {
 
 				// case: text tab only
 				$show_tabs = false;
-
 			} elseif ( wp_default_editor() == 'tinymce' ) {
 
 				// case: both tabs
 				$default_editor = 'tinymce';
-
 			}
 
 			// must be logged in to upload
 			if ( ! current_user_can( 'upload_files' ) ) {
-
 				$field['media_upload'] = 0;
-
 			}
 
 			// mode
@@ -288,7 +283,6 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 			</div>
 		</div>
 			<?php
-
 		}
 
 
@@ -314,7 +308,6 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 					'name'         => 'default_value',
 				)
 			);
-
 		}
 
 		/**
@@ -330,9 +323,7 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 			$choices  = array();
 
 			if ( ! empty( $toolbars ) ) {
-
 				foreach ( $toolbars as $k => $v ) {
-
 					$label = $k;
 					$name  = sanitize_title( $label );
 					$name  = str_replace( '-', '_', $name );
@@ -399,38 +390,43 @@ if ( ! class_exists( 'acf_field_wysiwyg' ) ) :
 				)
 			);
 		}
-
 		/**
 		 * This filter is applied to the $value after it is loaded from the db, and before it is returned to the template
 		 *
 		 * @type    filter
 		 * @since   3.6
-		 * @date    23/01/13
 		 *
-		 * @param mixed $value   The value which was loaded from the database
-		 * @param mixed $post_id The $post_id from which the value was loaded
-		 * @param array $field   The field array holding all the field options
+		 * @param mixed   $value       The value which was loaded from the database.
+		 * @param mixed   $post_id     The $post_id from which the value was loaded.
+		 * @param array   $field       The field array holding all the field options.
+		 * @param boolean $escape_html Should the field return a HTML safe formatted value.
 		 *
 		 * @return mixed $value The modified value
 		 */
-		function format_value( $value, $post_id, $field ) {
+		public function format_value( $value, $post_id, $field, $escape_html ) {
 			// Bail early if no value or not a string.
 			if ( empty( $value ) || ! is_string( $value ) ) {
 				return $value;
 			}
 
+			if ( $escape_html ) {
+				add_filter( 'acf_the_content', 'acf_esc_html', 1 );
+			}
+
 			$value = apply_filters( 'acf_the_content', $value );
+
+			if ( $escape_html ) {
+				remove_filter( 'acf_the_content', 'acf_esc_html', 1 );
+			}
 
 			// Follow the_content function in /wp-includes/post-template.php
 			return str_replace( ']]>', ']]&gt;', $value );
 		}
-
 	}
 
 
 	// initialize
 	acf_register_field_type( 'acf_field_wysiwyg' );
-
 endif; // class_exists check
 
 ?>

@@ -36,7 +36,6 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 			// field filters
 			$this->add_field_filter( 'acf/prepare_field_for_export', array( $this, 'prepare_field_for_export' ) );
 			$this->add_field_filter( 'acf/prepare_field_for_import', array( $this, 'prepare_field_for_import' ) );
-
 		}
 
 
@@ -61,14 +60,11 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 			// append
 			if ( $sub_fields ) {
-
 				$field['sub_fields'] = $sub_fields;
-
 			}
 
 			// return
 			return $field;
-
 		}
 
 
@@ -105,33 +101,27 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 				// load
 				$value[ $sub_field['key'] ] = acf_get_value( $post_id, $sub_field );
-
 			}
 
 			// return
 			return $value;
-
 		}
 
 
-		/*
-		*  format_value()
-		*
-		*  This filter is appied to the $value after it is loaded from the db and before it is returned to the template
-		*
-		*  @type    filter
-		*  @since   3.6
-		*  @date    23/01/13
-		*
-		*  @param   $value (mixed) the value which was loaded from the database
-		*  @param   $post_id (mixed) the $post_id from which the value was loaded
-		*  @param   $field (array) the field array holding all the field options
-		*
-		*  @return  $value (mixed) the modified value
-		*/
-
-		function format_value( $value, $post_id, $field ) {
-
+		/**
+		 * This filter is appied to the $value after it is loaded from the db and before it is returned to the template
+		 *
+		 * @type    filter
+		 * @since   3.6
+		 *
+		 * @param mixed   $value       The value which was loaded from the database.
+		 * @param mixed   $post_id     The $post_id from which the value was loaded.
+		 * @param array   $field       The field array holding all the field options.
+		 * @param boolean $escape_html Should the field return a HTML safe formatted value.
+		 *
+		 * @return mixed the modified value
+		 */
+		public function format_value( $value, $post_id, $field, $escape_html = false ) {
 			// bail early if no value
 			if ( empty( $value ) ) {
 				return false;
@@ -147,16 +137,14 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 				$sub_value = acf_extract_var( $value, $sub_field['key'] );
 
 				// format value
-				$sub_value = acf_format_value( $sub_value, $post_id, $sub_field );
+				$sub_value = acf_format_value( $sub_value, $post_id, $sub_field, $escape_html );
 
 				// append to $row
 				$value[ $sub_field['_name'] ] = $sub_value;
-
 			}
 
 			// return
 			return $value;
-
 		}
 
 
@@ -199,12 +187,10 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 				// key (backend)
 				if ( isset( $value[ $sub_field['key'] ] ) ) {
-
 					$v = $value[ $sub_field['key'] ];
 
 					// name (frontend)
 				} elseif ( isset( $value[ $sub_field['_name'] ] ) ) {
-
 					$v = $value[ $sub_field['_name'] ];
 
 					// empty
@@ -212,17 +198,14 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 					// input is not set (hidden by conditioanl logic)
 					continue;
-
 				}
 
 				// update value
 				acf_update_value( $v, $post_id, $sub_field );
-
 			}
 
 			// return
 			return '';
-
 		}
 
 
@@ -251,12 +234,10 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 				// prefix name
 				$sub_field['name'] = $field['name'] . '_' . $sub_field['_name'];
-
 			}
 
 			// return
 			return $field;
-
 		}
 
 
@@ -287,12 +268,10 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 					// this is a normal value
 					$sub_field['value'] = $field['value'][ $sub_field['key'] ];
-
 				} elseif ( isset( $sub_field['default_value'] ) ) {
 
 					// no value, but this sub field has a default value
 					$sub_field['value'] = $sub_field['default_value'];
-
 				}
 
 				// update prefix to allow for nested values
@@ -306,15 +285,10 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 			// render
 			if ( $field['layout'] == 'table' ) {
-
 				$this->render_field_table( $field );
-
 			} else {
-
 				$this->render_field_block( $field );
-
 			}
-
 		}
 
 
@@ -340,13 +314,10 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 			echo '<div class="acf-fields -' . $label_placement . ' -border">';
 
 			foreach ( $field['sub_fields'] as $sub_field ) {
-
 				acf_render_field_wrap( $sub_field );
-
 			}
 
 			echo '</div>';
-
 		}
 
 
@@ -389,10 +360,8 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 				// Add custom width
 				if ( $sub_field['wrapper']['width'] ) {
-
 					$atts['data-width'] = $sub_field['wrapper']['width'];
 					$atts['style']      = 'width: ' . $sub_field['wrapper']['width'] . '%;';
-
 				}
 
 				?>
@@ -408,9 +377,7 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 			<?php
 
 			foreach ( $field['sub_fields'] as $sub_field ) {
-
 				acf_render_field_wrap( $sub_field, 'td' );
-
 			}
 
 			?>
@@ -418,7 +385,6 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 	</tbody>
 </table>
 			<?php
-
 		}
 
 
@@ -475,7 +441,6 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 					),
 				)
 			);
-
 		}
 
 
@@ -522,12 +487,10 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 				// validate
 				acf_validate_value( $value[ $k ], $sub_field, "{$input}[{$k}]" );
-
 			}
 
 			// return
 			return $valid;
-
 		}
 
 
@@ -558,7 +521,6 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 			// return
 			return $field;
-
 		}
 
 		/**
@@ -606,7 +568,6 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 				// Return array of [field, sub_1, sub_2, ...].
 				return array_merge( array( $field ), $sub_fields );
-
 			}
 			return $field;
 		}
@@ -712,13 +673,11 @@ if ( ! class_exists( 'acf_field__group' ) ) :
 
 			return $value;
 		}
-
 	}
 
 
 	// initialize
 	acf_register_field_type( 'acf_field__group' );
-
 endif; // class_exists check
 
 ?>

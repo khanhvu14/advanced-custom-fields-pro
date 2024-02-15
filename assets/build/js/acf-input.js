@@ -1171,7 +1171,6 @@
       // the field which we query against
       rule: {} // the rule [field, operator, value]
     },
-
     events: {
       change: 'change',
       keyup: 'change',
@@ -1538,7 +1537,6 @@
       // Reference used during "change" event.
       groups: [] // The groups of condition instances.
     },
-
     setup: function (field) {
       // data
       this.data.field = field;
@@ -4255,7 +4253,6 @@
     active: false,
     actions: {
       refresh: 'onRefresh',
-      resize: 'onRefresh',
       close_field_object: 'onCloseFieldObject'
     },
     data: {
@@ -4428,28 +4425,21 @@
       return tab;
     },
     onRefresh: function () {
-      // Don't run on field group tabs.
-      if (['acf_field_settings_tabs', 'acf_field_group_settings_tabs'].includes(this.get('key'))) {
+      // only for left placements
+      if (this.get('placement') !== 'left') {
         return;
       }
 
-      // Block editor needs timeout to run after script is finished.
-      setTimeout(() => {
-        const $list = this.$el.children('ul');
-        let $element = this.$el;
-        let attribute = 'height';
-        let height;
-        if (this.get('placement') === 'left') {
-          $element = this.$el.parent();
-          attribute = $element.is('td') ? 'height' : 'min-height';
+      // vars
+      var $parent = this.$el.parent();
+      var $list = this.$el.children('ul');
+      var attribute = $parent.is('td') ? 'height' : 'min-height';
 
-          // Find height (minus 1 for border-bottom).
-          height = $list.position().top + $list.outerHeight(true) - 1;
-        } else {
-          height = Math.ceil($list.outerHeight(true));
-        }
-        $element.css(attribute, height);
-      }, 0);
+      // find height (minus 1 for border-bottom)
+      var height = $list.position().top + $list.outerHeight(true) - 1;
+
+      // add css
+      $parent.css(attribute, height);
     },
     onCloseFieldObject: function (fieldObject) {
       const tab = this.getVisible().find(item => {
@@ -6348,13 +6338,11 @@
       refresh: 'renderGroups'
     },
     renderGroups: function () {
-      // Set timeout so the editor fires at the right time.
-      setTimeout(() => {
-        var self = this;
-        $('.acf-fields:visible').each(function () {
-          self.renderGroup($(this));
-        });
-      }, 0);
+      // loop
+      var self = this;
+      $('.acf-fields:visible').each(function () {
+        self.renderGroup($(this));
+      });
     },
     renderGroup: function ($el) {
       // vars

@@ -136,7 +136,6 @@ if ( ! class_exists( 'acf_fields' ) ) :
 
 	// initialize
 	acf()->fields = new acf_fields();
-
 endif; // class_exists check
 
 
@@ -318,6 +317,24 @@ function acf_get_field_type_prop( $name = '', $prop = '' ) {
 function acf_get_field_type_label( $name = '' ) {
 	$label = acf_get_field_type_prop( $name, 'label' );
 	return $label ? $label : '<span class="acf-tooltip-js" title="' . __( 'Field type does not exist', 'acf' ) . '">' . __( 'Unknown', 'acf' ) . '</span>';
+}
+
+/**
+ * Returns the value of a field type "supports" property.
+ *
+ * @since 6.2.5
+ *
+ * @param string $name The name of the field type.
+ * @param string $prop The name of the supports property.
+ *
+ * @return mixed The value of the supports property which may be false, or false on failure.
+ */
+function acf_field_type_supports( $name = '', $prop = '' ) {
+	$supports = acf_get_field_type_prop( $name, 'supports' );
+	if ( ! is_array( $supports ) ) {
+		return false;
+	}
+	return isset( $supports[ $prop ] ) ? $supports[ $prop ] : false;
 }
 
 
