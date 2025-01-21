@@ -172,12 +172,15 @@ function acf_print_menu_section( $menu_items, $section = '' ) {
 <div class="acf-admin-toolbar">
 	<div class="acf-admin-toolbar-inner">
 		<div class="acf-nav-wrap">
-			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=acf-field-group' ) ); ?>" class="acf-logo">
-				<img src="<?php echo esc_url( acf_get_url( 'assets/images/acf-logo.svg' ) ); ?>" alt="<?php esc_attr_e( 'Advanced Custom Fields logo', 'acf' ); ?>">
-				<?php if ( acf_is_pro() && acf_pro_is_license_active() ) { ?>
-					<div class="acf-pro-label">PRO</div>
-				<?php } ?>
-			</a>
+			<?php if ( acf_is_pro() && acf_pro_is_license_active() ) { ?>
+				<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=acf-field-group' ) ); ?>" class="acf-logo pro">
+					<img src="<?php echo esc_url( acf_get_url( 'assets/images/acf-pro-logo.svg' ) ); ?>" alt="<?php esc_attr_e( 'Advanced Custom Fields logo', 'acf' ); ?>">
+				</a>
+			<?php } else { ?>
+				<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=acf-field-group' ) ); ?>" class="acf-logo">
+					<img src="<?php echo esc_url( acf_get_url( 'assets/images/acf-logo.svg' ) ); ?>" alt="<?php esc_attr_e( 'Advanced Custom Fields logo', 'acf' ); ?>">
+				</a>
+			<?php } ?>
 
 			<h2><?php echo esc_html( acf_get_setting( 'name' ) ); ?></h2>
 			<?php acf_print_menu_section( $core_tabs, 'core' ); ?>
@@ -212,7 +215,7 @@ function acf_print_menu_section( $menu_items, $section = '' ) {
 				$unlock_text   = __( 'Unlock Extra Features with ACF PRO', 'acf' );
 
 				if ( acf_is_pro() ) {
-					if ( acf_is_updates_page_visible() ) {
+					if ( acf_pro_is_updates_page_visible() ) {
 						$unlock_url    = admin_url( 'edit.php?post_type=acf-field-group&page=acf-settings-updates#acf_pro_license' );
 						$unlock_target = '';
 					}
